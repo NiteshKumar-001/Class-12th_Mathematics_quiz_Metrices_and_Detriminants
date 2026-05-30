@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Matrices Complete Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .instructions {
+            text-align: center;
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .question-block {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .question-text {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .options-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .option-item {
+            display: block;
+            margin-bottom: 10px;
+            padding: 12px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .option-item:hover {
+            background: #f0f0f0;
+        }
+        
+        /* State Classes for Feedback */
+        .option-item.correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            font-weight: bold;
+        }
+        .option-item.incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        /* Submit Area */
+        .submit-area {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .submit-btn {
+            padding: 15px 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background: #2980b9;
+        }
+        #final-score {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .score-good { background-color: #d4edda; color: #155724; }
+        .score-avg { background-color: #fff3cd; color: #856404; }
+        .score-poor { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Matrices Practice Test</h1>
+    <p class="instructions">Click on an option to see the answer instantly! Your first click counts towards your final score.</p>
+    <div id="quiz-wrapper"></div>
+    
+    <div class="submit-area">
+        <button class="submit-btn" onclick="calculateFinalScore()">Finish Quiz & Show Score</button>
+        <div id="final-score"></div>
+    </div>
+</div>
+
+<script>
+    // Raw question data
+    const quizData = [
+        {
+            q: "51. If a matrix C = [[1, 3, -2], [2, -4, 1], [0, 3, 2]] can be represented as the sum of a symmetric matrix P and a skew symmetric matrix Q, then matrix Q is equal to:",
+            opts: [
+                "(A) [[0, 1/2, -1], [2, -4, 1], [0, 2, 3]]",
+                "(B) [[1, 1/2, -1], [-1/2, 0, -1], [1, -1, 0]]",
+                "(C) [[0, 1/2, -1], [-1/2, 0, -1], [1, 1, 0]]",
+                "(D) None of these"
+            ],
+            ans: 2
+        },
+        {
+            q: "52. What must be the matrix X, If 2X + [[1, 2], [3, 4]] = [[3, 8], [7, 2]]?",
+            opts: [
+                "(A) [[1, 3], [2, -1]]",
+                "(B) [[1, -3], [2, -1]]",
+                "(C) [[2, 6], [4, -2]]",
+                "(D) [[2, -6], [4, -2]]"
+            ],
+            ans: 0
+        },
+        {
+            q: "53. If [[2, 1], [3, 2]] A [[-3, 2], [5, -3]] = [[1, 0], [0, 1]], then A is equal to:",
+            opts: [
+                "(A) [[1, 1], [1, 0]]",
+                "(B) [[1, 1], [0, 1]]",
+                "(C) [[1, 0], [1, 1]]",
+                "(D) [[0, 1], [1, 1]]"
+            ],
+            ans: 0
+        },
+        {
+            q: "54. A square matrix is said to be symmetric if A' is equal to:",
+            opts: ["(A) -A", "(B) A", "(C) A^2", "(D) I"],
+            ans: 1
+        },
+        {
+            q: "55. If A = [[a, 0], [1, 1]] and B = [[1, 0], [5, 1]], then the value of a for which A^2 = B is:",
+            opts: ["(A) 1", "(B) -1", "(C) 4", "(D) No real values"],
+            ans: 3
+        },
+        {
+            q: "56. If A = [[2, -1], [-1, 2]] and I is the unit matrix of order 2, then A^2 is equal to:",
+            opts: ["(A) 4A - 3I", "(B) 3A - 4I", "(C) A - I", "(D) A + I"],
+            ans: 0
+        },
+        {
+            q: "57. The matrix [[1, 0, 0], [0, 2, 0], [0, 0, 4]] is a:",
+            opts: ["(A) identity matrix", "(B) symmetric matrix", "(C) skew symmetric matrix", "(D) none of these"],
+            ans: 1
+        },
+        {
+            q: "58. Matrices A and B will be inverse of each other if:",
+            opts: ["(A) AB = BA", "(B) AB = BA = O", "(C) AB = O, BA = I", "(D) AB = BA = I"],
+            ans: 3
+        },
+        {
+            q: "59. [[7, 1, 2], [9, 2, 1]] * [[3], [4], [5]] + 2[[4], [2]] is equal to:",
+            opts: ["(A) [[43], [44]]", "(B) [[43], [45]]", "(C) [[45], [44]]", "(D) [[44], [45]]"],
+            ans: 0
+        },
+        {
+            q: "60. If A = [[4, x+2], [2x-3, x+1]] is symmetric, then x is equal to:",
+            opts: ["(A) 2", "(B) 3", "(C) 4", "(D) 5"],
+            ans: 3
+        },
+        {
+            q: "61. Out of the following a skew-symmetric matrix is:",
+            opts: [
+                "(A) [[0, 4, 5], [-4, 0, -6], [-5, 6, 0]]",
+                "(B) [[1, 4, 5], [-4, 1, -6], [-5, 6, 1]]",
+                "(C) [[1, 4, 5], [-4, 2, -6], [-5, 6, 3]]",
+                "(D) [[i+1, 4, 5], [-4, i, -6], [-5, 6, i]]"
+            ],
+            ans: 0
+        },
+        {
+            q: "62. If the matrix A = [[3, -2], [-7, -8]], then additive inverse of A is equal to:",
+            opts: [
+                "(A) [[-3, 2], [7, 8]]",
+                "(B) [[-3, -2], [7, 8]]",
+                "(C) [[3, -2], [-7, 8]]",
+                "(D) [[3, 2], [7, 8]]"
+            ],
+            ans: 0
+        },
+        {
+            q: "63. A = [a_ij]_(mxn) is a square matrix, if:",
+            opts: ["(A) m < n", "(B) m > n", "(C) m = n", "(D) None of these"],
+            ans: 2
+        },
+        {
+            q: "64. The element of a matrix at a_32 whose a_ij = (3i+2j)/5 is equal to:",
+            opts: ["(A) 19/5", "(B) 11/5", "(C) 13/5", "(D) 25/5"],
+            ans: 2
+        },
+        {
+            q: "65. If a matrix has 8 elements, then which of the following will not be a possible order of the matrix?",
+            opts: ["(A) 1 x 8", "(B) 2 x 4", "(C) 4 x 2", "(D) 4 x 4"],
+            ans: 3
+        },
+        {
+            q: "66. If A and B are two matrices such that both A+B and A*B are defined, then:",
+            opts: [
+                "(A) A and B are of same order",
+                "(B) A is of order m x m and B is of order n x n, m != n",
+                "(C) Both A and B are of same order n x n",
+                "(D) A is of order m x n and B is of order n x m"
+            ],
+            ans: 2
+        },
+        {
+            q: "67. Which of the following is incorrect?",
+            opts: [
+                "(A) (A')' = A",
+                "(B) (kA)' = kA'",
+                "(C) (A+B)' = A' + B'",
+                "(D) (AB)' = A'B'"
+            ],
+            ans: 3
+        },
+        {
+            q: "68. If A^2 = 8A + kI where A = [[1, 0], [-1, 7]], then k is:",
+            opts: ["(A) 7", "(B) -7", "(C) 1", "(D) -1"],
+            ans: 1
+        },
+        {
+            q: "69. If A = [[2, 0], [-3, 1]] and B = [[4, -3], [-6, 2]] are such that 4A + 3X = 5B, then X = ?",
+            opts: [
+                "(A) [[4, -5], [-6, 2]]",
+                "(B) [[4, 5], [-6, -2]]",
+                "(C) [[-4, 5], [6, -2]]",
+                "(D) none of these"
+            ],
+            ans: 0
+        },
+        {
+            q: "70. Given that A = [[a, b], [c, -a]] and A^2 = 3I, then:",
+            opts: [
+                "(A) 1 + a^2 + bc = 0",
+                "(B) 1 - a^2 - bc = 0",
+                "(C) 3 - a^2 - bc = 0",
+                "(D) 3 + a^2 + bc = 0"
+            ],
+            ans: 2
+        },
+        {
+            q: "71. If A = [[0, -1, 2], [1, 0, 3], [-2, -3, 0]], then A + 2A^T equals:",
+            opts: ["(A) A", "(B) -A^T", "(C) A^T", "(D) 2A^2"],
+            ans: 2
+        },
+        {
+            q: "72. If A = [[1, -1], [2, -1]], B = [[a, 1], [b, -1]] and (A+B)^2 = A^2 + B^2, then the values of a and b are:",
+            opts: [
+                "(A) a=4, b=1",
+                "(B) a=1, b=4",
+                "(C) a=0, b=4",
+                "(D) a=2, b=4"
+            ],
+            ans: 1
+        },
+        {
+            q: "73. If A = [[0, a, b], [7, 0, c], [-1, -6, 0]] is a skew symmetric matrix, then the value of abc is equal to:",
+            opts: ["(A) 42", "(B) -42", "(C) 49", "(D) -49"],
+            ans: 1
+        },
+        {
+            q: "74. If A = [[1], [2], [3]] and B = [[-5, 4, 0], [0, 2, -1], [1, -3, 2]], then:",
+            opts: [
+                "(A) AB = [[-5, 8, 0], [0, 4, -2], [3, -9, 6]]",
+                "(B) AB = [[-2, -1, 4]]",
+                "(C) AB = [[-1], [1], [1]]",
+                "(D) AB does not exist"
+            ],
+            ans: 3
+        },
+        {
+            q: "75. For any matrix A with real number entries, then A - A' is a:",
+            opts: [
+                "(A) symmetric matrix",
+                "(B) skew symmetric matrix",
+                "(C) identity matrix",
+                "(D) null matrix"
+            ],
+            ans: 1
+        }
+    ];
+
+    let userScore = 0;
+    let answeredQuestions = 0;
+    const totalQuestions = quizData.length;
+    const quizWrapper = document.getElementById('quiz-wrapper');
+
+    // Build the quiz
+    quizData.forEach((item, index) => {
+        let isAnswered = false; // Track if user has answered this specific question
+
+        const questionBlock = document.createElement('div');
+        questionBlock.className = 'question-block';
+        
+        // Remove the original number (e.g., "51. ") and add our own 1 to 25 sequence
+        const cleanQuestionText = item.q.replace(/^\d+\.\s*/, '');
+        
+        const questionText = document.createElement('div');
+        questionText.className = 'question-text';
+        questionText.innerText = `${index + 1}. ${cleanQuestionText}`;
+        questionBlock.appendChild(questionText);
+
+        const optionsList = document.createElement('div');
+        optionsList.className = 'options-list';
+
+        item.opts.forEach((optText, optIndex) => {
+            const optionItem = document.createElement('div');
+            optionItem.className = 'option-item';
+            optionItem.innerText = optText;
+            
+            // Add click event for instant feedback and scoring
+            optionItem.onclick = function() {
+                if (isAnswered) return; // Prevent clicking multiple times
+                isAnswered = true;
+                answeredQuestions++;
+
+                // Disable all options for this question
+                const siblings = optionsList.querySelectorAll('.option-item');
+                siblings.forEach(sib => sib.classList.add('disabled'));
+
+                // Check if correct
+                if (optIndex === item.ans) {
+                    this.classList.add('correct');
+                    userScore++; // Add to final score
+                } else {
+                    this.classList.add('incorrect');
+                    // Highlight the correct answer automatically
+                    siblings[item.ans].classList.add('correct');
+                }
+            };
+            optionsList.appendChild(optionItem);
+        });
+
+        questionBlock.appendChild(optionsList);
+        quizWrapper.appendChild(questionBlock);
+    });
+
+    // Function to calculate and display the final score
+    function calculateFinalScore() {
+        const scoreDisplay = document.getElementById('final-score');
+        const percentage = Math.round((userScore / totalQuestions) * 100);
+        
+        scoreDisplay.style.display = 'block'; // Make it visible
+        
+        // Reset classes
+        scoreDisplay.className = '';
+        
+        // Apply coloring based on score
+        if (percentage >= 80) {
+            scoreDisplay.classList.add('score-good');
+            scoreDisplay.innerHTML = `Great Job! You scored ${userScore} out of ${totalQuestions} (${percentage}%).`;
+        } else if (percentage >= 50) {
+            scoreDisplay.classList.add('score-avg');
+            scoreDisplay.innerHTML = `Not Bad! You scored ${userScore} out of ${totalQuestions} (${percentage}%).`;
+        } else {
+            scoreDisplay.classList.add('score-poor');
+            scoreDisplay.innerHTML = `Keep Practicing! You scored ${userScore} out of ${totalQuestions} (${percentage}%).`;
+        }
+
+        // Remind them if they didn't answer everything
+        if (answeredQuestions < totalQuestions) {
+            scoreDisplay.innerHTML += `<br><span style="font-size: 0.8em; font-weight: normal;">(Note: You left ${totalQuestions - answeredQuestions} questions unanswered.)</span>`;
+        }
+    }
+</script>
+
+</body>
+</html>
